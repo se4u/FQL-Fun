@@ -8,7 +8,10 @@ import hmac
 import json
 import hashlib
 from base64 import urlsafe_b64decode, urlsafe_b64encode
-
+import logging
+import inspect
+logging.basicConfig(level=logging.ERROR)
+print 1+1
 import requests
 from flask import Flask, request, redirect, render_template, url_for
 
@@ -18,7 +21,11 @@ requests = requests.session()
 app_url = 'https://graph.facebook.com/{0}'.format(FB_APP_ID)
 FB_APP_NAME = json.loads(requests.get(app_url).content).get('name')
 FB_APP_SECRET = os.environ.get('FACEBOOK_SECRET')
+print(FB_APP_NAME)
+print(FB_APP_SECRET)
 
+def whoami():
+    return inspect.stack()[1][3] + 'I am the function'
 
 def oauth_login_url(preserve_path=True, next_url=None):
     fb_login_uri = ("https://www.facebook.com/dialog/oauth"
@@ -113,7 +120,7 @@ app = Flask(__name__)
 app.config.from_object(__name__)
 app.config.from_object('conf.Config')
 
-
+print(app)
 def get_home():
     return 'https://' + request.host + '/'
 
@@ -162,14 +169,13 @@ def get_token():
 @app.route('/', methods=['GET', 'POST'])
 def index():
     # print get_home()
-
-
+    #logging.debug(whoami())
     access_token = get_token()
+    print(access_token)
     channel_url = url_for('get_channel', _external=True)
     channel_url = channel_url.replace('http:', '').replace('https:', '')
 
     if access_token:
-
         me = fb_call('me', args={'access_token': access_token})
         fb_app = fb_call(FB_APP_ID, args={'access_token': access_token})
         likes = fb_call('me/likes',
@@ -196,25 +202,64 @@ def index():
         url = request.url
 
         return render_template(
-            'index.html', app_id=FB_APP_ID, token=access_token, likes=likes,
+            'index.html', app_id=FB_APP_ID, token=access_token[0], likes=likes,
             friends=friends, photos=photos, app_friends=app_friends, app=fb_app,
             me=me, POST_TO_WALL=POST_TO_WALL, SEND_TO=SEND_TO, url=url,
             channel_url=channel_url, name=FB_APP_NAME)
     else:
-        return render_template('login.html', app_id=FB_APP_ID, token=access_token, url=request.url, channel_url=channel_url, name=FB_APP_NAME)
+        return render_template('login.html', app_id=FB_APP_ID, token=access_token[0], url=request.url, channel_url=channel_url, name=FB_APP_NAME)
 
 @app.route('/channel.html', methods=['GET', 'POST'])
 def get_channel():
+    #logging.debug(whoami())
     return render_template('channel.html')
 
 
 @app.route('/close/', methods=['GET', 'POST'])
 def close():
+    #    logging.debug(whoami())
     return render_template('close.html')
 
+@app.route( '/query', methods=['GET', 'POST'])
+def query():
+    # Since query can only be made from index.html I already have token access
+    # Otherwise i am here illegally. and I need to show the query.html page which
+    # extends the already base.html
+    logging.debug(whoami())
+    token = get_token()
+    me = fb_call('me', args={'access_token': token})
+    app = fb_call(FB_APP_ID, args={'access_token': token})
+    url = request.url
+    access_token = get_token()
+    Query_String = None
+    if request.method == 'POST':
+        Query_String = request.form['query']
+    else:
+        Query_String = request.args.get('query')
+
+    response = fql(Query_String, access_token)
+
+    response_table_header = None
+    response_table_values = None
+    if type(response) is dict:
+        response_table_header = ['Error']
+        response_table_values = [{'Error' : response['error_msg'] +' your query was ' + Query_String}]
+    else:
+        assert type(response) is list
+        if len(response) is 0:
+            response_table_header = ['Response']
+            response_table_values = [{'Response' : 'Your query ' + Query_String + 'returned 0 results'}]
+        else:
+            response_table_header = (response[0]).keys()
+            response_table_values = response
+
+    return render_template('index.html', query_result=1, table_header=response_table_header, table_rows = response_table_values, me=me, app=app, url=url, token=token[0])
+
+
 if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 5000))
+    port = int(os.environ.get("PORT", 5001))
     if app.config.get('FB_APP_ID') and app.config.get('FB_APP_SECRET'):
+        #import pdb; pdb.set_trace()
         app.run(host='0.0.0.0', port=port)
     else:
         print 'Cannot start application without Facebook App Id and Secret set'

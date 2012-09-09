@@ -10,7 +10,7 @@ small, strike, strong, sub, sup, tt, var,
 b, u, i, center,
 dl, dt, dd, ol, ul, li,
 fieldset, form, label, legend,
-table, caption, tbody, tfoot, thead, tr, th, td,
+caption, tbody, tfoot, thead, tr, th, td,
 article, aside, canvas, details, embed, 
 figure, figcaption, footer, header, hgroup, 
 menu, nav, output, ruby, section, summary,
@@ -22,6 +22,7 @@ time, mark, audio, video {
   font-size: 100%;
   vertical-align: baseline;
 }
+
 
 /* HTML5 display-role reset for older browsers */
 
@@ -48,6 +49,13 @@ blockquote:before, blockquote:after, q:before, q:after {
 }
 
 table {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  font: inherit;
+  font-size: 100%;
+  border-style: solid;
+  border-color: gray;
   border-collapse: collapse;
   border-spacing: 0;
 }
