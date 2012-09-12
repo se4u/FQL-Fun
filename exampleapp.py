@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 import base64
 import os
 import os.path
@@ -10,10 +9,9 @@ import hashlib
 from base64 import urlsafe_b64decode, urlsafe_b64encode
 import logging
 import inspect
-logging.basicConfig(level=logging.ERROR)
-print 1+1
 import requests
 from flask import Flask, request, redirect, render_template, url_for
+import sample
 
 FB_APP_ID = os.environ.get('FACEBOOK_APP_ID')
 requests = requests.session()
@@ -21,8 +19,6 @@ requests = requests.session()
 app_url = 'https://graph.facebook.com/{0}'.format(FB_APP_ID)
 FB_APP_NAME = json.loads(requests.get(app_url).content).get('name')
 FB_APP_SECRET = os.environ.get('FACEBOOK_SECRET')
-print(FB_APP_NAME)
-print(FB_APP_SECRET)
 
 def whoami():
     return inspect.stack()[1][3] + 'I am the function'
@@ -131,38 +127,30 @@ def get_token():
         return fbapi_auth(request.args.get('code'))[0]
 
     cookie_key = 'fbsr_{0}'.format(FB_APP_ID)
-
     if cookie_key in request.cookies:
-
         c = request.cookies.get(cookie_key)
         encoded_data = c.split('.', 2)
-
         sig = encoded_data[0]
         data = json.loads(urlsafe_b64decode(str(encoded_data[1]) + (64-len(encoded_data[1])%64)*"="))
-
         if not data['algorithm'].upper() == 'HMAC-SHA256':
             raise ValueError('unknown algorithm {0}'.format(data['algorithm']))
 
         h = hmac.new(FB_APP_SECRET, digestmod=hashlib.sha256)
         h.update(encoded_data[1])
         expected_sig = urlsafe_b64encode(h.digest()).replace('=', '')
-
         if sig != expected_sig:
             raise ValueError('bad signature')
 
         code =  data['code']
-
         params = {
             'client_id': FB_APP_ID,
             'client_secret': FB_APP_SECRET,
             'redirect_uri': '',
             'code': data['code']
         }
-
         from urlparse import parse_qs
         r = requests.get('https://graph.facebook.com/oauth/access_token', params=params)
         token = parse_qs(r.content).get('access_token')
-
         return token
 
 
@@ -174,7 +162,6 @@ def index():
     print(access_token)
     channel_url = url_for('get_channel', _external=True)
     channel_url = channel_url.replace('http:', '').replace('https:', '')
-
     if access_token:
         me = fb_call('me', args={'access_token': access_token})
         fb_app = fb_call(FB_APP_ID, args={'access_token': access_token})
@@ -184,23 +171,18 @@ def index():
                           args={'access_token': access_token, 'limit': 4})
         photos = fb_call('me/photos',
                          args={'access_token': access_token, 'limit': 16})
-
         redir = get_home() + 'close/'
         POST_TO_WALL = ("https://www.facebook.com/dialog/feed?redirect_uri=%s&"
                         "display=popup&app_id=%s" % (redir, FB_APP_ID))
-
         app_friends = fql(
             "SELECT uid, name, is_app_user, pic_square "
             "FROM user "
             "WHERE uid IN (SELECT uid2 FROM friend WHERE uid1 = me()) AND "
             "  is_app_user = 1", access_token)
-
         SEND_TO = ('https://www.facebook.com/dialog/send?'
                    'redirect_uri=%s&display=popup&app_id=%s&link=%s'
                    % (redir, FB_APP_ID, get_home()))
-
         url = request.url
-
         return render_template(
             'index.html', app_id=FB_APP_ID, token=access_token[0], likes=likes,
             friends=friends, photos=photos, app_friends=app_friends, app=fb_app,
@@ -225,7 +207,6 @@ def query():
     # Since query can only be made from index.html I already have token access
     # Otherwise i am here illegally. and I need to show the query.html page which
     # extends the already base.html
-    logging.debug(whoami())
     token = get_token()
     me = fb_call('me', args={'access_token': token})
     app = fb_call(FB_APP_ID, args={'access_token': token})
@@ -237,8 +218,7 @@ def query():
     else:
         Query_String = request.args.get('query')
 
-    response = fql(Query_String, access_token)
-
+    response = fql(sample.fqlmaker(Query_String), access_token)
     response_table_header = None
     response_table_values = None
     if type(response) is dict:
@@ -252,7 +232,6 @@ def query():
         else:
             response_table_header = (response[0]).keys()
             response_table_values = response
-
     return render_template('index.html', query_result=1, table_header=response_table_header, table_rows = response_table_values, me=me, app=app, url=url, token=token[0])
 
 

@@ -40,38 +40,14 @@
 {% block content %}
 <section class="clearfix" id="samples">
 <table border="1" >     
-<tr><td> SELECT name FROM user WHERE uid = me() , Get your name
-       </td></tr>
-<tr><td> SELECT uid2 FROM friend WHERE uid1 = me() , Get your friends ids
-       </td></tr>
-<tr><td> SELECT uid, name, pic_square FROM user WHERE uid = me() OR uid IN (SELECT uid2 FROM friend WHERE uid1 = me()) , Get names etc. of your friends
-       </td></tr>
-<tr><td> SELECT aid,name,description,location,type,size FROM album WHERE owner = me() , Get your albums names, size etc.
-       </td></tr>
-<tr><td> SELECT target_id,target_type FROM connection WHERE source_id = me() OR source_id IN (SELECT uid2 FROM friend WHERE uid1 = me()) , Get all of your friends connections
-       </td></tr>
-<tr><td> SELECT domain_id FROM domain WHERE domain_name='www.facebook.com' , Get domain id of a domain
-       </td></tr>
-<tr><td> SELECT id,relationship FROM family where profile_id = me() OR profile_id IN (SELECT uid2 FROM friend WHERE uid1 = me()) , get name and relationships of all of your friends
-       </td></tr>
-<tr><td> SELECT gid FROM group_member WHERE uid IN (SELECT uid2 FROM friend WHERE uid1 = me()) , get id of groups of all of your friends
-       </td></tr>
-<tr><td> SELECT name,description,venue FROM group where gid IN (SELECT gid FROM group_member WHERE uid = me()) , get names and descriptions of all of your groups
-       </td></tr>
-<tr><td> SELECT name,description,venue FROM group where gid IN (SELECT gid FROM group_member WHERE uid IN (SELECT uid2 FROM friend WHERE uid1 = me())) , get descriptions names of all of your friends groups
-        </td></tr>
-<tr><td> SELECT uid,status_id,message FROM status WHERE uid IN (SELECT uid2 FROM friend WHERE uid1= me()) AND time &gt; {time in the last week} , You can getupto the past 30 days status messages of all your friends
-        </td></tr>
-<tr><td> SELECT title,url FROM link WHERE owner = me() OR owner IN (SELECT uid2 FROM friend WHERE uid1= me()) , get titles and urls of links posted by all of your friends 
-        </td></tr>
-<tr><td> SELECT url,share_count, like_count, comment_count, total_count FROM link_stat WHERE url IN (SELECT url FROM link WHERE owner=me()) , get like counts etc. of stuff posted by your friends
-        </td></tr>
-<tr><td> SELECT uid,status_id,message FROM status WHERE uid IN (SELECT uid2 FROM friend WHERE uid1= me()) , get all of your and your friends status messages
-        </td></tr>
-<tr><td> SELECT name,affiliations,religion,birthday,sex,hometown_location,significant_other_id,political,current_location,interests,music,movies,hs_info,education_history,work_history,wall_count,email FROM user WHERE uid=me() , Get your self
-        </td></tr>
-<tr><td> SELECT name,affiliations,religion,birthday,sex,hometown_location,significant_other_id,political,current_location,interests,music,movies,hs_info,education_history,work_history,wall_count,email FROM user WHERE uid IN (SELECT uid2 from friend WHERE uid1=me()) , GET your friends
-        </td></tr> </table>
+<tr><td> Show all of my friends </td></tr>
+<tr><td> Show 10 friends </td></tr>
+<tr><td> Show top 20 friends </td></tr>
+<tr><td> Show all my family members (only shows members on facebook)</td></tr>
+<tr><td> show my name </td></tr>
+<tr><td> More features to access birthdays, status, and your happiest,
+    angriest, funniest friends would be added soon </td></tr>
+</table>
         
         <form action="/query" method="post">
 		<input type="text" name="query" size="60"> 
