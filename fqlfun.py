@@ -217,7 +217,6 @@ def query():
         Query_String = request.form['query']
     else:
         Query_String = request.args.get('query')
-
     response = fql(query2fql.fqlmaker(Query_String), access_token)
     response_table_header = None
     response_table_values = None

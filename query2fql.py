@@ -10,19 +10,19 @@ def find_table(inp):
     f_family = re.search( "family", inp)
     if f_my != None and f_friend == None and f_family == None:
         #just me
-        return(fbnlpdata.FQL_DB_SCHEMA['user']['output'])
+        return(schemadata.FQL_DB_SCHEMA['user']['output'])
     elif f_friend != None and f_family != None:
         #friend and family, don't handle
-        raise Exception(fbnlpdata.TOO_MUCH_DETAIL)
+        raise Exception(schemadata.TOO_MUCH_DETAIL)
     elif f_my == None and f_friend == None and f_family == None:
         #Noone, dont handle
-        raise Exception(fbnlpdata.ASK_FOR_MORE_INFO)
+        raise Exception(schemadata.ASK_FOR_MORE_INFO)
     elif f_friend != None:
         #return friends
-        return(fbnlpdata.FQL_DB_SCHEMA['friend']['output'])
+        return(schemadata.FQL_DB_SCHEMA['friend']['output'])
     else:# f_family != None
         #return family
-        return(fbnlpdata.FQL_DB_SCHEMA['family']['output'])
+        return(schemadata.FQL_DB_SCHEMA['family']['output'])
 
 def extract_limit(inp):
     inp = inp.lower().strip()
@@ -49,7 +49,7 @@ def fqlmaker(inp):
     confidence = 1
     if table is None:
         confidence = 0
-        query = fbnlpdata.ASK_FOR_MORE_INFO
+        query = schemadata.ASK_FOR_MORE_INFO
     else:
         confidence = 1#confidence/len(tables)
 
