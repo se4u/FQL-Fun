@@ -1,10 +1,13 @@
-Facebook/Heroku sample app -- Python
+FQL-Fun app, query your fb network in a natural language
 ====================================
 
-This is a sample app showing use of the Facebook Graph API, written in
-Python, designed for deployment to Heroku_.
+This is app is meant to provide a platform through which one can test
+the understanding of nlp and apply them to my network of friends. for
+example i could query show me all my friends and the backend would
+parse the request into fql and show me a table of all my friends.
 
-.. _Heroku: http://www.heroku.com/
+it is currently running at `FQL-Fun` and an alias location is on my
+site ``fbfqlfun.pushpendre.in``
 
 Run locally
 -----------
@@ -16,7 +19,7 @@ Set up a Virtualenv and install dependencies::
     pip install -r requirements.txt
 
 `Create an app on Facebook`_ and set the Website URL to
-``http://localhost:5000/``.
+``http://localhost:5001/``.
 
 Copy the App ID and Secret from the Facebook app settings page into
 your ``.env``::
@@ -24,30 +27,8 @@ your ``.env``::
     echo FACEBOOK_APP_ID=12345 >> .env
     echo FACEBOOK_SECRET=abcde >> .env
 
-Launch the app with Foreman_::
+and launch the app by entering on your command line the contents of
+Procfile and hitting enter.
 
-    foreman start
-
+.. _FQL-Fun: apps.facebook.com/fql-fun
 .. _Create an app on Facebook: https://developers.facebook.com/apps
-.. _Foreman: http://blog.daviddollar.org/2011/05/06/introducing-foreman.html
-
-Deploy to Heroku via Facebook integration
------------------------------------------
-
-The easiest way to deploy is to create an app on Facebook and click
-Cloud Services -> Get Started, then choose Python from the dropdown.
-You can then ``git clone`` the resulting app from Heroku.
-
-Deploy to Heroku directly
--------------------------
-
-If you prefer to deploy yourself, push this code to a new Heroku app
-on the Cedar stack, then copy the App ID and Secret into your config
-vars::
-
-    heroku create --stack cedar
-    git push heroku master
-    heroku config:add FACEBOOK_APP_ID=12345 FACEBOOK_SECRET=abcde
-
-Enter the URL for your Heroku app into the Website URL section of the
-Facebook app settings page, hen you can visit your app on the web.
